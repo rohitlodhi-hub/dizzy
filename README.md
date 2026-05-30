@@ -1,197 +1,238 @@
-## DIZZY 🚗💤
+# DIZZY 🚗💤
 
-### Real-Time Driver Drowsiness & Dizziness Detection System
+## AI-Powered Driver Drowsiness & Fatigue Detection System
 
-DIZZY is a real-time computer vision-based driver monitoring system that detects signs of **drowsiness, fatigue, yawning, and dizziness** using facial landmark analysis. The system continuously monitors the driver's face through a webcam and generates alerts when dangerous conditions are detected.
+DIZZY is a real-time Driver Monitoring System (DMS) that uses Computer Vision and Facial Landmark Analysis to detect signs of:
 
-The project aims to reduce road accidents caused by driver fatigue by providing an affordable software-based safety solution.
+* Drowsiness
+* Fatigue
+* Excessive Yawning
+* Head Tilt / Attention Loss
+* Possible Dizziness
+
+The system analyzes facial landmarks using MediaPipe Face Mesh and generates instant alerts when fatigue-related behavior is detected.
 
 ---
 
-# Features
+## Key Features
 
-* Real-time face detection
-* Eye Aspect Ratio (EAR) based drowsiness detection
+### Real-Time Monitoring
+
+* Live webcam-based face tracking
+* Single-face monitoring
+* Real-time processing (20–30 FPS)
+
+### Drowsiness Detection
+
+* Eye Aspect Ratio (EAR) based eye closure detection
+* Adaptive threshold calibration
+* Consecutive-frame verification
+
+### Yawn Detection
+
 * Mouth Aspect Ratio (MAR) based yawn detection
-* Head pose estimation for dizziness monitoring
-* Vehicle vibration filtering to reduce false alarms
-* Audio alert system
-* Automatic screenshot capture during alert events
-* User-specific calibration
-* Signal smoothing using EMA and median filters
+* Dynamic user-specific calibration
+
+### Head Pose Analysis
+
+* Pitch estimation
+* Yaw estimation
+* Roll estimation
+* Sustained head tilt detection
+
+### False Alarm Reduction
+
+* Median filtering
+* Exponential Moving Average (EMA)
+* Velocity variance analysis
+* Road vibration suppression
+
+### Alert System
+
+* Audio alarm
+* Screenshot capture
+* Timestamp logging
+* Alert cooldown mechanism
+
+### Performance Enhancements
+
 * Multi-threaded alert handling
+* Adaptive threshold learning
+* Landmark smoothing
+* Noise filtering
 
 ---
 
-# Problem Statement
+## Technologies Used
 
-Driver fatigue is one of the leading causes of road accidents worldwide. Traditional monitoring systems often require expensive hardware and specialized sensors.
-
-DIZZY provides a low-cost software solution that:
-
-* Detects prolonged eye closure
-* Detects excessive yawning
-* Detects abnormal head movements
-* Reduces false detections caused by road vibrations
-* Generates immediate alerts to regain driver attention
+| Technology          | Purpose                   |
+| ------------------- | ------------------------- |
+| Python              | Core Programming Language |
+| OpenCV              | Image Processing          |
+| MediaPipe Face Mesh | Facial Landmark Detection |
+| NumPy               | Numerical Computation     |
+| SciPy               | Distance Calculations     |
+| Pygame              | Audio Alert System        |
+| Threading           | Concurrent Alert Handling |
 
 ---
 
-# System Architecture
+## System Architecture
 
 ```text
 Webcam Feed
       │
       ▼
-Face Detection
+MediaPipe Face Mesh
       │
       ▼
-Facial Landmark Detection
+Facial Landmark Extraction
       │
-      ├────────────► Eye Analysis (EAR)
+      ├────────► Eye Aspect Ratio (EAR)
       │
-      ├────────────► Mouth Analysis (MAR)
+      ├────────► Mouth Aspect Ratio (MAR)
       │
-      └────────────► Head Pose Estimation
-                              │
-                              ▼
-                  Vibration Filtering
-                              │
-                              ▼
-                    Decision Engine
-                              │
-                              ▼
-                      Alert System
-                              │
-                              ▼
-           Audio Alarm + Screenshot Logging
+      └────────► Head Pose Estimation
+                         │
+                         ▼
+             Smoothing & Filtering
+                         │
+                         ▼
+                 Decision Engine
+                         │
+                         ▼
+                  Alert Manager
+                         │
+      ┌──────────────────┴──────────────────┐
+      ▼                                     ▼
+Audio Alarm                     Screenshot Logging
 ```
 
 ---
 
-# Technologies Used
+## Detection Methods
 
-| Technology | Purpose                   |
-| ---------- | ------------------------- |
-| Python     | Core Programming Language |
-| OpenCV     | Computer Vision           |
-| Dlib       | Facial Landmark Detection |
-| NumPy      | Numerical Computation     |
-| SciPy      | Distance Calculations     |
-| Pygame     | Audio Alerts              |
-| Threading  | Background Alert Handling |
+### 1. Eye Aspect Ratio (EAR)
 
----
+The system measures eye openness using six facial landmarks around each eye.
 
-# Detection Techniques
+Low EAR values sustained across multiple frames indicate:
 
-## 1. Eye Aspect Ratio (EAR)
-
-The system monitors eye closure using facial landmarks.
-
-A continuously low EAR value indicates that the driver's eyes remain closed for an abnormal duration, which may suggest drowsiness or microsleep.
-
-### Applications
-
-* Drowsiness detection
-* Fatigue monitoring
-* Microsleep detection
+* Drowsiness
+* Microsleep
+* Fatigue
 
 ---
 
-## 2. Mouth Aspect Ratio (MAR)
+### 2. Mouth Aspect Ratio (MAR)
 
-The system measures mouth opening to detect yawning.
+The system measures mouth opening using multiple lip landmarks.
 
-Frequent or prolonged yawning is treated as a fatigue indicator and contributes to the drowsiness score.
+High MAR values indicate:
 
-### Applications
-
-* Fatigue estimation
-* Driver alertness monitoring
+* Yawning
+* Fatigue
+* Reduced alertness
 
 ---
 
-## 3. Head Pose Estimation
+### 3. Head Pose Estimation
 
-Head orientation is estimated using facial landmarks and OpenCV's `solvePnP()` algorithm.
-
-The system tracks:
+Using OpenCV solvePnP and MediaPipe landmarks, the system estimates:
 
 * Pitch
-* Roll
 * Yaw
+* Roll
 
-Abnormal head movements can indicate:
+Abnormal sustained head movements may indicate:
 
-* Dizziness
 * Driver distraction
-* Loss of attention
+* Fatigue
+* Dizziness
 
 ---
 
-## 4. Vibration Filtering
+### 4. Vibration Filtering
 
-Road conditions often introduce noise into camera measurements.
+Vehicle vibrations often create noisy measurements.
 
-To reduce false positives, the system uses:
+The system combines:
 
-### Median Filtering
+* Median Filter
+* EMA Filter
+* Velocity Variance Analysis
 
-Removes sudden spikes caused by vibration.
-
-### Exponential Moving Average (EMA)
-
-Smooths landmark movement over time.
-
-### Velocity Variance Analysis
-
-Differentiates between genuine driver movement and vehicle vibration.
+to suppress false alerts.
 
 ---
 
-# Project Structure
+## Adaptive Calibration
+
+Unlike fixed-threshold systems, DIZZY automatically calibrates itself during startup.
+
+Calibration Period:
+
+* First 120 frames
+
+The system learns:
+
+* User baseline EAR
+* User baseline MAR
+
+Then computes personalized thresholds.
+
+Benefits:
+
+* Higher accuracy
+* Better user adaptation
+* Reduced false positives
+
+---
+
+## Project Structure
 
 ```text
 DIZZY/
 │
-├── new.py
-├── alert.py
-├── requirements.txt
+├── drowsiness_detector.py
 ├── alert.wav
-├── shape_predictor_68_face_landmarks.dat
-├── screenshots/
+├── alerts/
+│   ├── alert_eye_xxx.jpg
+│   ├── alert_yawn_xxx.jpg
+│   └── alert_head_xxx.jpg
+│
+├── requirements.txt
 └── README.md
 ```
 
 ---
 
-# Installation
+## Installation
 
-## 1. Clone Repository
+### Clone Repository
 
 ```bash
 git clone https://github.com/rohitlodhi-hub/dizzy.git
 cd dizzy
 ```
 
-## 2. Create Virtual Environment
+### Create Virtual Environment
 
-### Windows
+Windows
 
 ```bash
 python -m venv venv
 venv\Scripts\activate
 ```
 
-### Linux / macOS
+Linux / macOS
 
 ```bash
 python3 -m venv venv
 source venv/bin/activate
 ```
 
-## 3. Install Dependencies
+### Install Dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -199,164 +240,134 @@ pip install -r requirements.txt
 
 ---
 
-# Download Facial Landmark Model
+## Requirements
 
-This project requires Dlib's 68-point facial landmark predictor.
-
-Download:
-
-https://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2
-
-Extract the file and place:
-
-```text
-shape_predictor_68_face_landmarks.dat
+```txt
+opencv-python
+mediapipe
+numpy
+scipy
+pygame
 ```
 
-inside the project root directory.
-
----
-
-# Requirements
-
-Create a `requirements.txt` file containing:
-
-```text
-opencv-python>=4.5.0
-numpy>=1.19.0
-scipy>=1.5.0
-pygame>=2.0.0
-dlib>=19.24.0
-```
-
-Install using:
+Install manually:
 
 ```bash
-pip install -r requirements.txt
+pip install opencv-python mediapipe numpy scipy pygame
 ```
 
 ---
 
-# Running the Project
+## Running the Project
 
 ```bash
-python new.py
+python drowsiness_detector.py
 ```
 
-Ensure:
+Press:
 
-* Webcam is connected
-* Audio is enabled
-* Landmark model file is present
-* Adequate lighting conditions exist
+```text
+q
+```
+
+to exit.
 
 ---
 
-# Alert Mechanism
-
-The system triggers alerts when:
+## Alert Conditions
 
 ### Eye Alert
 
-Eyes remain closed beyond a predefined duration.
+Triggered when:
+
+* EAR remains below threshold
+* For multiple consecutive frames
 
 ### Yawn Alert
 
-Yawning exceeds the configured threshold.
+Triggered when:
 
-### Head Movement Alert
+* MAR remains above threshold
+* For multiple consecutive frames
 
-Abnormal head pose is detected for an extended period.
+### Head Alert
 
-When an alert occurs:
+Triggered when:
 
-1. Alarm sound is played.
-2. Screenshot is captured.
-3. Timestamp is logged.
-4. Driver receives immediate feedback.
+* Sustained abnormal pitch or yaw is detected
 
 ---
 
-# Performance
+## Performance
 
 Test Environment:
 
 * Windows 11
 * Python 3.12
 * OpenCV 4.x
-* Dlib 19.24+
+* MediaPipe 0.10+
 
 Typical Performance:
 
-| Metric             | Value              |
-| ------------------ | ------------------ |
-| Frame Rate         | 20–30 FPS          |
-| Detection Speed    | Real-Time          |
-| Alert Latency      | Less than 1 second |
-| Camera Requirement | Standard Webcam    |
+| Metric        | Value               |
+| ------------- | ------------------- |
+| FPS           | 20–30               |
+| Alert Latency | < 1 Second          |
+| Webcam        | Standard USB Camera |
+| Processing    | Real Time           |
 
 ---
 
-# Limitations
+## Limitations
 
-* Single-face tracking
+* Single-face tracking only
 * Performance depends on lighting conditions
-* Glasses may reduce detection accuracy
-* Dlib is slower than modern landmark detectors
+* Extreme head angles may reduce accuracy
+* Webcam quality affects detection reliability
 * Not intended for medical diagnosis
-* Accuracy decreases under extreme camera angles
 
 ---
 
-# Future Improvements
+## Future Enhancements
 
-## Planned Enhancements
-
-* MediaPipe Face Mesh Integration
-* Deep Learning-Based Fatigue Detection
-* Night Vision Support
+* Deep Learning Fatigue Detection
 * Mobile Application
-* Driver Identity Recognition
-* Cloud-Based Event Storage
+* Night Vision Support
+* Driver Identification
+* Cloud Event Storage
 * Fleet Monitoring Dashboard
-* Multi-Face Detection
-* AI-Based Driver Risk Scoring
+* Multi-Face Support
+* Driver Risk Scoring
+* Edge AI Deployment
 
 ---
 
-# Resume Description
+## Resume Description
 
-Developed a real-time Driver Drowsiness and Dizziness Detection System using Python, OpenCV, and Dlib. Implemented Eye Aspect Ratio (EAR), Mouth Aspect Ratio (MAR), and Head Pose Estimation techniques with vibration filtering to detect fatigue-related driving risks. Built a multi-threaded alert system with audio notifications and screenshot logging for real-time driver monitoring.
+Developed an AI-powered Driver Drowsiness and Fatigue Detection System using Python, OpenCV, and MediaPipe Face Mesh. Implemented Eye Aspect Ratio (EAR), Mouth Aspect Ratio (MAR), head-pose estimation, adaptive calibration, and vibration filtering to detect fatigue-related driving risks in real time. Built a multi-threaded alert framework with audio alarms and automated screenshot logging.
 
 ---
 
-# Research Concepts Used
+## Author
 
+Rohit Lodhi
+
+B.Tech – Computer Science Engineering (AI & ML)
+
+Interests:
+
+* Artificial Intelligence
 * Computer Vision
-* Facial Landmark Detection
-* Signal Processing
-* Real-Time Systems
-* Head Pose Estimation
-* Human Behavior Analysis
-* Driver Monitoring Systems
-* Noise Reduction Techniques
+* Machine Learning
+* Real-Time Monitoring Systems
+
+GitHub:
+https://github.com/rohitlodhi-hub/dizzy
 
 ---
 
-# Author
+## License
 
-**Rohit Lodhi**
+This project is intended for educational, research, and portfolio purposes.
 
-B.Tech (CSE - AI & ML)
-
-Computer Vision | Artificial Intelligence | Machine Learning
-
-GitHub: https://github.com/rohitlodhi-hub
-
----
-
-# License
-
-This project is developed for educational and research purposes.
-
-Feel free to use, modify, and improve the project with proper attribution.
+Use responsibly and provide attribution when redistributing or modifying the project.
